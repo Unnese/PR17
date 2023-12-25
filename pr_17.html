@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Практическая работа 17</title>
+    <style>
+        body {
+            width: 900px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        table {
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+
+        #output {
+            margin-bottom: 20px;
+        }
+
+        .center {
+        text-align: center;
+        }
+
+        .table {
+        text-align: right;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: flex-start;
+        }
+
+        #table1, #table2{
+            border-collapse: collapse;
+            width: 25%;
+            margin-left: auto;
+        }
+
+        #table1 td, #table1 th, #table2 td, #table2 th {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #table1 th, #table2 th {
+            background-color: #f2f2f2;
+        }
+
+        h3 {
+            text-align: right;
+            margin-right: 20px;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="center">Работа с данными текста</h1>
+    <div>
+        <textarea id="input" rows="10" cols="50"></textarea>
+    </div>
+        <button onclick="clear1()" style="padding: 10px;">Очистить</button>
+        <button onclick="execute()" style="padding: 10px;">Выполнить</button>
+    <div class="container">
+    <h3>Таблица 1: Количество слов в строке</h3>
+    </div>
+    <div>
+    <table id="table1"></table>
+    <button onclick="saveTable('table1')" style="padding: 10px; float: right;">Сохранить</button>
+    </div>
+    <br><br>
+    <h3>Таблица 2: Анализ текста</h3>
+    <table id="table2"></table>
+    <button onclick="saveTable('table2')" style="padding: 10px; float: right;">Сохранить</button>
+    <button onclick="clearAll()" style="padding: 10px; margin: 0 auto; display: block;">Очистить всё</button>
+    <script>
+        function clear1() {
+            document.getElementById("input").value = "";
+        }
+
+        function clearAll() {
+            document.getElementById("input").value = "";
+            document.getElementById("table1").innerHTML = "";
+            document.getElementById("table2").innerHTML = "";
+        }
+
+        function execute() {
+            const inputText = document.getElementById("input").value;
+            const paragraphArray = inputText.split("\n");
+            
+            const wordCountData = [];
+            for (let i = 0; i < paragraphArray.length; i++) {
+                const paragraph = paragraphArray[i].trim();
+                if (paragraph !== "") {
+                    const wordCount = paragraph.split(" ").length;
+                    wordCountData.push({ paragraph: paragraph, wordCount: wordCount });
+                }
+            }
+            
+            const cleanedText = inputText.trim();
+            
+            const singleSpaceText = cleanedText.replace(/\s{2,}/g, " ");
+            
+            const formattedText = singleSpaceText.replace(/^\n/, "");
+            
+            const totalWordCount = formattedText.split(" ").length;
+            
+            const vowelCount = formattedText.match(/[aeiouаеёиоуыэюя]/gi)?.length ?? 0;
+            
+            const consonants = formattedText.match(/[bcdfghjklmnpqrstvwxyzбвгджзйклмнпрстфхцчшщ]/gi);
+            const consonantOutput = consonants ? consonants.join("") : "";
+            
+            const totalCharacterCount = formattedText.length;
+            
+            const letterCount = formattedText.match(/[a-zA-Zа-яА-Я]/gi)?.length ?? 0;
+            
+            displayWordCount(wordCountData);
+            displayTextInfo(totalWordCount, vowelCount, consonantOutput, totalCharacterCount, letterCount);
+        }
+
+        function displayWordCount(data) {
+            const table = document.getElementById("table1");
+            table.innerHTML = "";
+
+            const headerRow = table.insertRow();
+            const headerCell1 = headerRow.insertCell();
+            headerCell1.textContent = "Абзац";
+            const headerCell2 = headerRow.insertCell();
+            headerCell2.textContent = "Количество слов";
+
+            for (let i = 0; i < data.length; i++) {
+                const rowData = data[i];
+                const row = table.insertRow();
+                const cell1 = row.insertCell();
+                cell1.textContent = rowData.paragraph;
+                const cell2 = row.insertCell();
+                cell2.textContent = rowData.wordCount;
+            }
+        }
+
+        function displayTextInfo(totalWordCount, vowelCount, consonantOutput, totalCharacterCount, letterCount) {
+            const table = document.getElementById("table2");
+            table.innerHTML = "";
+
+            const row1 = table.insertRow();
+            const cell11 = row1.insertCell();
+            cell11.textContent = "Количество слов в тексте:";
+            const cell12 = row1.insertCell();
+            cell12.textContent = totalWordCount;
+
+            const row2 = table.insertRow();
+            const cell21 = row2.insertCell();
+            cell21.textContent = "Количество гласных букв:";
+            const cell22 = row2.insertCell();
+            cell22.textContent = vowelCount;
+
+            const row3 = table.insertRow();
+            const cell31 = row3.insertCell();
+            cell31.textContent = "Согласные буквы:";
+            const cell32 = row3.insertCell();
+            cell32.textContent = consonantOutput;
+
+            const row4 = table.insertRow();
+            const cell41 = row4.insertCell();
+            cell41.textContent = "Количество знаков:";
+            const cell42 = row4.insertCell();
+            cell42.textContent = totalCharacterCount;
+
+            const row5 = table.insertRow();
+            const cell51 = row5.insertCell();
+            cell51.textContent = "Количество букв:";
+            const cell52 = row5.insertCell();
+            cell52.textContent = letterCount;
+        }
+
+        function saveTable(tableId) {
+            html2canvas(document.getElementById(tableId)).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL();
+                link.download = "table.png";
+                link.click();
+            });
+        }
+    </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
